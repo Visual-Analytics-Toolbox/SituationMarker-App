@@ -1,3 +1,10 @@
+# Situation Marker App
+
+## Android
+Check if device is found by your dev environment:
+```bash
+adb devices -l
+```
 There is a difference between npx expo run:android and npm run android
 
 on phone set usb mode
