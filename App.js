@@ -1,65 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Vibration } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
 import UdpSocket from 'react-native-udp';
 import { Buffer } from 'buffer';
+import { parseGameControlData } from './utils/GameControlData';
 
-// Mapping the struct format: '4s B B B B B B B B B B h h'
-// 4s = 4 bytes (string/header)
-// B  = 1 byte (unsigned char)
-// h  = 2 bytes (short / signed 16-bit integer)
-
-export const parseGameControlData = (data) => {
-  // Convert to DataView for easy offset-based reading
-  // If data is a string, you'll need to convert it to a Uint8Array first
-  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-  
-  // 1. Check Header (First 4 bytes)
-  const header = String.fromCharCode(
-    view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3)
-  );
-
-  if (header !== 'RGme' && header !== 'RGTD') {
-    throw new Error(`Invalid Header: ${header}`);
-  }
-
-  // 2. Check Version (Byte 4)
-  const version = view.getUint8(4);
-  if (version !== 18) {
-    // Note: Python code says 18, check if your sender matches
-    console.warn(`Version mismatch: expected 18, got ${version}`);
-  }
-
-  // 3. Parse fields based on byte offsets
-  // Offset 5: packetNumber (B)
-  // Offset 6: playersPerTeam (B)
-  // Offset 7: competitionPhase (B)
-  // Offset 8: competitionType (B)
-  // Offset 9: gamePhase (B)
-  // Offset 10: gameState (B)
-  // Offset 11: setPlay (B)
-  // Offset 12: firstHalf (B)
-  // Offset 13: kickingTeam (B)
-  
-  // The 'h' (short) fields start at offset 14
-  // We use 'true' for little-endian (matches Python's default struct behavior)
-  const secsRemaining = view.getInt16(14, true); 
-  const secondaryTime = view.getInt16(16, true);
-
-  return {
-    header,
-    version,
-    gameState: view.getUint8(10),
-    secsRemaining, // This is what you're after!
-    secondaryTime, // This one too!
-  };
-};
 
 export default function App() {
   const [gameTime, setGameTime] = useState("Disconnected");
+  const [gcIP,setGcIP] = useState('10.0.2.2');
   const socketRef = useRef(null);
 
-  // Configuration - Change this to your PC's IP address!
-  const PC_IP = '10.0.4.100'; 
+
   const SEND_PORT = 3636;
   const LISTEN_PORT = 3838;
 
@@ -72,7 +23,8 @@ export default function App() {
       const header = data.toString('ascii', 0, 4);
       const gameData = parseGameControlData(data);
 
-      if (gameData.header === 'RGme') {
+      if (gameData.header === 'RGTD') {
+        console.log(gameData)
         // Simple extraction: Assuming secsRemaining is at a specific byte offset
         // You will eventually need a proper parser here
         const minutes = Math.floor(gameData.secsRemaining / 60);
@@ -107,10 +59,10 @@ export default function App() {
       0,
       packet.length,
       SEND_PORT,
-      PC_IP,
+      gcIP,
       (err) => {
         if (err) console.log("Send Error:", err);
-        else console.log("Handshake sent to", PC_IP);
+        else console.log("Handshake sent to", gcIP);
       }
     );
   };
@@ -123,6 +75,10 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.status}>Gamecontroller IP</Text>
+      <TextInput style={styles.ipInput} onChangeText={setGcIP}>
+        {gcIP}
+      </TextInput>
       <TouchableOpacity onPress={sendHandshake} style={styles.connectBtn}>
         <Text style={styles.connectText}>CONNECT TO GAME</Text>
       </TouchableOpacity>
@@ -142,5 +98,6 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
   connectBtn: { padding: 10, backgroundColor: '#333', borderRadius: 5 },
   connectText: { color: '#00ff00', fontWeight: 'bold' },
-  status: { color: '#aaa', fontSize: 20 }
+  status: { color: '#aaa', fontSize: 20 },
+  ipInput: { padding: 10, backgroundColor: '#333', borderRadius: 5,color: '#00ff00', fontWeight: 'bold' ,width:110,textAlign:'center'}
 });
