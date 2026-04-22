@@ -21,7 +21,7 @@ export const parseGameControlData = (data) => {
   const version = view.getUint8(4);
   if (version !== 19) {
     // Note: Python code says 18, check if your sender matches
-    console.warn(`Version mismatch: expected 18, got ${version}`);
+    console.warn(`Version mismatch: expected 19, got ${version}`);
   }
 
   // 3. Parse fields based on byte offsets
@@ -68,17 +68,17 @@ export const parseGameControlReturnData = (data) => {
   
   // 1. Check Header (First 4 bytes)
   const header = String.fromCharCode(
-    view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3)
+    view.getUint8(4), view.getUint8(5), view.getUint8(6), view.getUint8(7)
   );
 
-  if (header !== 'RGme' && header !== 'RGTD') {
+  if (header !== 'RGrt') {
     throw new Error(`Invalid Header: ${header}`);
   }
 
   // 2. Check Version (Byte 4)
-  const version = view.getUint8(4);
-  if (version !== 19) {
-    console.warn(`Version mismatch: expected 19, got ${version}`);
+  const version = view.getUint8(8);
+  if (version !== 4) {
+    console.warn(`Version mismatch: expected 4, got ${version}`);
   }
 
   // Offset 5: playerNum (B)
