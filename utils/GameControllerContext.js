@@ -5,9 +5,14 @@ import { sendHandshake } from './GameController';
 
 const GameControllerContext = createContext(null);
 
+const makeRobotStatusKey = ({ teamNum, playerNum }) => `${teamNum}:${playerNum}`;
+
 export const GameControllerProvider = ({ children }) => {
     const [gcIP, setGcIP] = useState('10.12.156.98');
     const [monitor, setMonitor] = useState(false);
+    const [latestRobotStatus, setLatestRobotStatus] = useState({});
+    const [latestGameData, setLatestGameData] = useState(null);
+    const [latestTrueGameData, setLatestTrueGameData] = useState(null);
 
     const GameDataSocketRef = useRef(null);
     const RobotStatusSocketRef = useRef(null);
@@ -23,6 +28,7 @@ export const GameControllerProvider = ({ children }) => {
             setGcIP(rinfo.address)
 
             if (gameData.header === 'RGme') {
+                setLatestGameData(gameData);
                 if (!ipRef.current) {
                     ipRef.current = rinfo.address;
                     setGcIP(rinfo.address);
@@ -35,8 +41,11 @@ export const GameControllerProvider = ({ children }) => {
                     sendHandshake(rinfo.address, GameDataSocketRef);
                 }
             }
+            if (gameData.header === 'RGTD') {
+                setLatestTrueGameData(gameData);
+            }
 
-            console.log(gameData)
+            // console.log(gameData);
         })
 
         GameDataSocket.on('error', (err) => {
@@ -49,11 +58,15 @@ export const GameControllerProvider = ({ children }) => {
         const RobotStatusSocket = UdpSocket.createSocket('udp4');
 
         RobotStatusSocket.on('message', (data, rinfo) => {
-
             const robotStatus = parseGameControlReturnData(data);
 
-            if (robotStatus.header.search('RGrt') != -1) {
-                console.log(robotStatus)
+            if (robotStatus.header.search('RGrt') !== -1) {
+                const key = makeRobotStatusKey(robotStatus);
+                setLatestRobotStatus((prev) => ({
+                    ...prev,
+                    [key]: robotStatus,
+                }));
+                // console.log(robotStatus);
             }
         });
 
@@ -69,19 +82,19 @@ export const GameControllerProvider = ({ children }) => {
                 GameDataSocketRef.current.close();
                 GameDataSocketRef.current = null;
             }
-            if (RobotStatusSocket.current) {
-                RobotStatusSocket.current.close();
-                RobotStatusSocket.current = null;
+            if (RobotStatusSocketRef.current) {
+                RobotStatusSocketRef.current.close();
+                RobotStatusSocketRef.current = null;
             }
         };
 
     }, [monitor]);
 
     return (
-        <GameControllerContext.Provider value={{ gcIP, monitor }}>
+        <GameControllerContext.Provider value={{ gcIP, monitor, latestRobotStatus, latestGameData, latestTrueGameData }}>
             {children}
         </GameControllerContext.Provider>
-    )
-}
+    );
+};
 
 export const useGameController = () => useContext(GameControllerContext);

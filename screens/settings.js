@@ -1,33 +1,16 @@
-import { useGameController } from './utils/GameControllerContext';
 import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 
-export default function MainView() {
-    const [gameTime, setGameTime] = useState("Disconnected");
-    const { gcIP, monitor } = useGameController();
-    // const [gcIP,setGcIP] = useState('10.12.156.98');
 
-      const handleMark = () => {
-        Vibration.vibrate(70);
-        // Here you would call your API to save the situation
-        console.log("Marked at:", gameTime);
-      };
+
+export default function Settings() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.status}>Gamecontroller IP</Text>
+            <Text style={styles.status}>Token</Text>
             <TextInput style={styles.ipInput}>
-                {gcIP}
+                Token
             </TextInput>
-            {/* <TouchableOpacity onPress={sendHandshake} style={styles.connectBtn}>
-                <Text style={styles.connectText}>CONNECT TO GAME</Text>
-            </TouchableOpacity> */}
-
-            <TouchableOpacity style={styles.button} onPress={handleMark}>
-                <Text style={styles.buttonText}>MARK</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.status}>{gameTime}</Text>
         </View>
     )
 }

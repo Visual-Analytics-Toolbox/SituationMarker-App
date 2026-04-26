@@ -1,18 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
 import { GameControllerProvider } from './utils/GameControllerContext';
-import MainView from './main';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Main from './screens/main';
+import Settings from './screens/settings';
+import Upload from './screens/upload';
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
-
-
-
-
-
   return (
-    <GameControllerProvider>
-      <MainView></MainView>
-    </GameControllerProvider>
+    <NavigationContainer>
+      <GameControllerProvider>
+        <Tab.Navigator>
+          <Tab.Screen name="Home" component={Main} />
+          <Tab.Screen name="Upload" component={Upload} />
+          <Tab.Screen name="Settings" component={Settings} />
+        </Tab.Navigator>
+      </GameControllerProvider>
+    </NavigationContainer>
   );
 }
-
