@@ -4,6 +4,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadSituations } from '../utils/storeData';
 import { useToken } from '../utils/auth';
+import { useAudioPlayer } from 'expo-audio';
+
 
 async function uploadSitation(situation)  {
     [token] = useToken();
@@ -30,6 +32,20 @@ export default function MarkedSituationsScreen() {
     const [situationsByKey, setSituationsByKey] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const audioPlayer = useAudioPlayer(null);
+
+    const handlePlayAudio = (audioUri) => {
+        if (!audioUri) {
+            return;
+        }
+
+        try {
+            audioPlayer.replace(audioUri);
+            audioPlayer.play();
+        } catch (e) {
+            console.warn('Failed to play audio:', e);
+        }
+    };
 
     useFocusEffect(
         useCallback(() => {
@@ -90,7 +106,14 @@ export default function MarkedSituationsScreen() {
         keys.map((key) => {
             situationsByKey[key].map((situation)=> {
                 console.log(situation);
-                // uploadSitation(situation);
+                if (!situation?.audio)
+                {
+                    // uploadSitation(situation);
+                }
+                else {
+                    // TODO: figure out how we want to upload audio files after situation endpoint is done
+                }
+                
             })
         })
 
@@ -125,11 +148,25 @@ export default function MarkedSituationsScreen() {
                                         situationsByKey[key].map((situation, index) => {
                                             const timestampMs = situation?.timestamp;
                                             const date = timestampMs ? new Date(timestampMs) : null;
-                                            const formatted = date ? date.toLocaleString() : 'Unknown date';
+                                            const formatted_date = date ? date.toLocaleString() : 'Unknown date';
+                                            const audio = situation?.audio;
+                                            const formatted_text = audio ? `${formatted_date} 🎙️` : formatted_date;
+
+                                            if (audio) {
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={`${key}-${index}`}
+                                                        onPress={() => handlePlayAudio(audio)}
+                                                        style={styles.situationButton}
+                                                    >
+                                                        <Text style={styles.situationText}>{formatted_text}</Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            }
 
                                             return (
                                                 <Text key={`${key}-${index}`} style={styles.situationText}>
-                                                    {formatted}
+                                                    {formatted_text}
                                                 </Text>
                                             );
                                         })
@@ -215,6 +252,14 @@ export default function MarkedSituationsScreen() {
             marginBottom: 8,
             fontSize: 16,
             color: '#fff'
+        },
+        situationButton: {
+            width: '100%',
+            paddingVertical: 8,
+            paddingHorizontal: 8,
+            borderRadius: 6,
+            backgroundColor: '#222',
+            marginBottom: 4
         },
         situationText: {
             marginLeft: 8,

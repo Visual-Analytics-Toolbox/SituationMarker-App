@@ -32,7 +32,15 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+    [
+      "expo-audio",
+        {
+          "microphonePermission": "Allow SituationMarker to access your microphone.",
+          "enableBackgroundPlayback": true,
+          "enableBackgroundRecording": false
+        }
+      ]
     ]
   }
 }
