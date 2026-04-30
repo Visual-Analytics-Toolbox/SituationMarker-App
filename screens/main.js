@@ -2,6 +2,7 @@ import { useGameController } from '../utils/GameControllerContext';
 import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { storeSituation } from '../utils/storeData';
+import AudioButton from '../components/audio_recorder';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const formatTime = (secsRemaining) => {
@@ -30,11 +31,12 @@ export default function Main() {
 
                 <Text style={styles.connectText}>CONNECT TO GAME</Text>
             </TouchableOpacity> */}
-
+           
             <TouchableOpacity style={styles.button} onPress={handleMark}>
                 <Text style={styles.buttonText}>MARK</Text>
             </TouchableOpacity>
-
+             <Text style={styles.status}>Record Audio Situation</Text>
+            <AudioButton></AudioButton>
             <Text style={styles.status}>{formatTime(latestTrueGameData?.secsRemaining)}</Text>
         </View>
     )
