@@ -13,7 +13,7 @@
     "@react-navigation/bottom-tabs": "^7.15.10",
     "@react-navigation/native": "^7.2.2",
     "buffer": "^6.0.3",
-    "expo": "~54.0.33",
+    "expo": "~55.0.0",
     "expo-audio": "~1.1.1",
     "expo-dev-client": "~6.0.20",
     "expo-secure-store": "~15.0.8",
