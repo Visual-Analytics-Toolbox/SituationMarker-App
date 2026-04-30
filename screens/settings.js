@@ -1,16 +1,17 @@
 import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-
-
+import { useToken } from '../utils/auth';
 
 export default function Settings() {
-
+    const [token,setValue] = useToken();
     return (
         <View style={styles.container}>
             <Text style={styles.status}>Token</Text>
-            <TextInput style={styles.ipInput}>
-                Token
-            </TextInput>
+            <TextInput 
+            style={styles.ipInput}
+            value={token}
+        onChangeText={setValue}
+            />
         </View>
     )
 }

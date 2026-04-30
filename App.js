@@ -11,7 +11,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <GameControllerProvider>
-        <Tab.Navigator>
+        <Tab.Navigator screenOptions={{ headerShown: false }}>
           <Tab.Screen name="Home" component={Main} />
           <Tab.Screen name="Upload" component={Upload} />
           <Tab.Screen name="Settings" component={Settings} />
