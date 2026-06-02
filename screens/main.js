@@ -33,9 +33,9 @@ export default function Main() {
             </TouchableOpacity> */}
            
             <TouchableOpacity style={styles.button} onPress={handleMark}>
-                <Text style={styles.buttonText}>MARK</Text>
+                <Text style={styles.buttonText}>mark situation</Text>
             </TouchableOpacity>
-             <Text style={styles.status}>Record Audio Situation</Text>
+             <Text style={styles.status}>mark situation and record audio</Text>
             <AudioButton></AudioButton>
             <Text style={styles.status}>{formatTime(latestTrueGameData?.secsRemaining)}</Text>
         </View>
@@ -45,7 +45,7 @@ export default function Main() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center' },
     button: { width: 220, height: 220, borderRadius: 110, backgroundColor: '#ec008c', alignItems: 'center', justifyContent: 'center', marginVertical: 40 },
-    buttonText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
+    buttonText: { color: '#fff', fontSize: 32, fontWeight: 'bold' ,textAlign:'center'},
     connectBtn: { padding: 10, backgroundColor: '#333', borderRadius: 5 },
     connectText: { color: '#00ff00', fontWeight: 'bold' },
     status: { color: '#aaa', fontSize: 20 },
