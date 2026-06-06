@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput, Linking } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { useToken } from '../utils/auth';
 
@@ -12,6 +12,15 @@ export default function Settings() {
             value={token}
         onChangeText={setValue}
             />
+
+            <View style={styles.tokenInfo}> <Text style={styles.status}>Tokens can be obtained from  </Text>
+                <Text style={styles.link} onPress={() => Linking.openURL('https://vat.berlin-united.com/admin')}>
+                    https://vat.berlin-united.com/admin
+                </Text>
+                <Text style={styles.status}>
+                If you can't obtain a token, marked Sitations are only stored locally.
+            </Text></View>
+           
         </View>
     )
 }
@@ -22,6 +31,8 @@ const styles = StyleSheet.create({
     buttonText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
     connectBtn: { padding: 10, backgroundColor: '#333', borderRadius: 5 },
     connectText: { color: '#00ff00', fontWeight: 'bold' },
-    status: { color: '#aaa', fontSize: 20 },
-    ipInput: { padding: 10, backgroundColor: '#333', borderRadius: 5, color: '#00ff00', fontWeight: 'bold', width: 110, textAlign: 'center' }
+    status: { color: '#aaa', fontSize: 20 ,textAlign: 'center'},
+    ipInput: { padding: 10, backgroundColor: '#333', borderRadius: 5, color: '#00ff00', fontWeight: 'bold', width: 210, textAlign: 'center' },
+    tokenInfo: { padding: 30,},
+    link: {color:'#ec008c',fontSize:20,textAlign:'center'}
 });

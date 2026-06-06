@@ -42,7 +42,7 @@ export default function AudioButton() {
   return (
  
     <TouchableOpacity style={styles.button} onPress={recorderState.isRecording ? stopRecording : record}>
-        <Text style={styles.buttonText}>{recorderState.isRecording ? 'stop':'start'}</Text>
+        <Text style={styles.buttonText}>{recorderState.isRecording ? 'stop recording':'start recording'}</Text>
     </TouchableOpacity>
     
   );
@@ -50,5 +50,5 @@ export default function AudioButton() {
 
 const styles = StyleSheet.create({
    button: { width: 220, height: 220, borderRadius: 110, backgroundColor: '#ec008c', alignItems: 'center', justifyContent: 'center',marginVertical:10},
-    buttonText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
+    buttonText: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
 });

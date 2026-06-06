@@ -8,7 +8,7 @@ const GameControllerContext = createContext(null);
 const makeRobotStatusKey = ({ teamNum, playerNum }) => `${teamNum}:${playerNum}`;
 
 export const GameControllerProvider = ({ children }) => {
-    const [gcIP, setGcIP] = useState('10.12.156.98');
+    const [gcIP, setGcIP] = useState('');
     const [monitor, setMonitor] = useState(false);
     const [latestRobotStatus, setLatestRobotStatus] = useState({});
     const [latestGameData, setLatestGameData] = useState(null);

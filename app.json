@@ -33,14 +33,16 @@
     },
     "plugins": [
       "expo-secure-store",
-    [
-      "expo-audio",
+      [
+        "expo-audio",
         {
           "microphonePermission": "Allow SituationMarker to access your microphone.",
           "enableBackgroundPlayback": true,
           "enableBackgroundRecording": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-asset"
     ]
   }
 }

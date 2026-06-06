@@ -12,6 +12,26 @@ on phone set usb mode
 npx expo run:android --device
 > select your phone
 
+## troubleshooting
+
+try this if building the android app fails
+
+```bash
+cd android
+./gradlew generateCodegenArtifactsFromSchema
+```
+
+if icons not showing up
+
+```bash
+npx expo prebuild --clean
+npx expo start -c
+```
+
+general diagnosis
+```bash
+npx expo-doctor
+```
 
 # Make udp work in dev
 npx expo start --tunnel
