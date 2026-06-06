@@ -24,9 +24,9 @@ export default function Main() {
     return (
         <View style={styles.container}>
             <Text style={styles.status}>Gamecontroller IP</Text>
-            <TextInput style={styles.ipInput}>
-                {gcIP}
-            </TextInput>
+            <Text style={styles.ipInput}>
+                {gcIP === '' ? 'No GameController found' : gcIP}
+            </Text>
             {/* <TouchableOpacity onPress={sendHandshake} style={styles.connectBtn}>
 
                 <Text style={styles.connectText}>CONNECT TO GAME</Text>
@@ -49,5 +49,5 @@ const styles = StyleSheet.create({
     connectBtn: { padding: 10, backgroundColor: '#333', borderRadius: 5 },
     connectText: { color: '#00ff00', fontWeight: 'bold' },
     status: { color: '#aaa', fontSize: 20 },
-    ipInput: { padding: 10, backgroundColor: '#333', borderRadius: 5, color: '#00ff00', fontWeight: 'bold', width: 110, textAlign: 'center' }
+    ipInput: { padding: 10, backgroundColor: '#333', borderRadius: 5, color: '#00ff00', fontWeight: 'bold', width: 220, textAlign: 'center' }
 });
