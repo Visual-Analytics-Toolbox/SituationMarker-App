@@ -122,7 +122,7 @@ export default function MarkedSituationsScreen() {
         return (
             <View style={styles.container}>
                 <Text style={styles.title}>Marked Situations</Text>
-
+                <Text style={styles.subtext}>All marked Situations grouped by game.{"\n"} You can upload these situations to VAT. {"\n"}Replay audio situations (marked with a 🎙️) by clicking on them.</Text>
                 {loading ? (
                     <Text style={styles.subtext}>Loading situations..</Text>
                 ) : error ? (
@@ -138,19 +138,26 @@ export default function MarkedSituationsScreen() {
 
                         {/* ScrollView naturally left-aligns, but styles ensure it stays that way */}
                         <ScrollView style={styles.keysContainer} contentContainerStyle={styles.keysContent}>
-                            <Text style={styles.label}>Games:</Text>
+                            <Text style={styles.label}>Situations:</Text>
 
                             {keys.map((key) => (
                                 <View key={key} style={styles.keyBlock}>
-                                    <Text style={styles.keyText}>{key}</Text>
+                                    <Text style={styles.keyText}>{`Game: ${key}`}</Text>
 
                                     {Array.isArray(situationsByKey[key]) && situationsByKey[key].length > 0 ? (
                                         situationsByKey[key].map((situation, index) => {
                                             const timestampMs = situation?.timestamp;
                                             const date = timestampMs ? new Date(timestampMs) : null;
-                                            const formatted_date = date ? date.toLocaleString() : 'Unknown date';
+                                            const formattedTime = date
+                                                ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                                                : 'Unknown date';
                                             const audio = situation?.audio;
-                                            const formatted_text = audio ? `${formatted_date} 🎙️` : formatted_date;
+                                            let formatted_text = audio ? `${formattedTime} 🎙️` : formattedTime;
+                                            const secsRemaining = situation?.TrueGameData?.secsRemaining 
+                                            const minutes = Math.floor(secsRemaining /60);
+                                            const seconds = secsRemaining - minutes * 60;
+                                            formatted_text = `${formatted_text} | game time: ${minutes}:${seconds}`;
+
 
                                             if (audio) {
                                                 return (
