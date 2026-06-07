@@ -4,13 +4,13 @@
     "slug": "SituationMarkerApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/situation_marker.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1d8cdd"
     },
     "ios": {
       "supportsTablet": true
@@ -22,8 +22,8 @@
         "CHANGE_WIFI_MULTICAST_STATE"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/situation_marker.png",
+        "backgroundColor": "#1d8cdd"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.anonymous.SituationMarkerApp"
