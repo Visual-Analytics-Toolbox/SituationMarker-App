@@ -19,7 +19,7 @@ export const parseGameControlData = (data) => {
 
   // 2. Check Version (Byte 4)
   const version = view.getUint8(4);
-  if (version !== 19) {
+  if (version !== 20) {
     console.warn(`Version mismatch: expected 19, got ${version}`);
   }
   const packetNumber = view.getUint8(5);
@@ -39,8 +39,7 @@ export const parseGameControlData = (data) => {
   const parsePlayer = (offset) => ({
     penalty: view.getUint8(offset),
     secsTillUnpenalized: view.getUint8(offset + 1),
-    warnings: view.getUint8(offset + 2),
-    cautions: view.getUint8(offset + 3),
+    cautions: view.getUint8(offset + 2),
   });
 
   const parseTeam = (offset) => {
