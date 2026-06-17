@@ -20,7 +20,7 @@ export const parseGameControlData = (data) => {
   // 2. Check Version (Byte 4)
   const version = view.getUint8(4);
   if (version !== 20) {
-    console.warn(`Version mismatch: expected 19, got ${version}`);
+    console.warn(`Version mismatch: expected 20, got ${version}`);
   }
   const packetNumber = view.getUint8(5);
   const playersPerTeam = view.getUint8(6);
