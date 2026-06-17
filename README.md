@@ -1,5 +1,11 @@
 # Situation Marker App
 
+## Testing
+build app with
+npm run android
+
+make sure gamecontroller is bound to your WiFi/Ethernet Interface 
+
 ## Android
 Check if device is found by your dev environment:
 ```bash
