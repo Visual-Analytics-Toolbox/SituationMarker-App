@@ -41,6 +41,8 @@ async function uploadSituation(situation, token) {
 }
 
 
+
+
 export default function MarkedSituationsScreen() {
     const [keys, setKeys] = useState([]);
     const [situationsByKey, setSituationsByKey] = useState({});
@@ -144,6 +146,40 @@ export default function MarkedSituationsScreen() {
         }
     };
 
+    const handleDeleteSituation = async (gameKey, indexToDelete) => {
+        try {
+            // 1. Get the current array of situations for this game key
+            const currentSituations = situationsByKey[gameKey] || [];
+
+            // 2. Filter out the specific situation by its index
+            const updatedSituations = currentSituations.filter((_, index) => index !== indexToDelete);
+
+            if (updatedSituations.length === 0) {
+                // If no situations are left for this game, remove the key entirely
+                await AsyncStorage.removeItem(gameKey);
+
+                // Update local state to completely drop the key
+                setKeys(prevKeys => prevKeys.filter(k => k !== gameKey));
+                setSituationsByKey(prev => {
+                    const copy = { ...prev };
+                    delete copy[gameKey];
+                    return copy;
+                });
+            } else {
+                // Otherwise, update AsyncStorage with the remaining items
+                await AsyncStorage.setItem(gameKey, JSON.stringify(updatedSituations));
+
+                // Update local state for just this key's array
+                setSituationsByKey(prev => ({
+                    ...prev,
+                    [gameKey]: updatedSituations
+                }));
+            }
+        } catch (e) {
+            console.error("Failed to delete situation:", e);
+            alert("Could not delete the situation.");
+        }
+    };
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Marked Situations</Text>
@@ -200,9 +236,17 @@ export default function MarkedSituationsScreen() {
                                         }
 
                                         return (
-                                            <Text key={`${key}-${index}`} style={styles.situationText}>
-                                                {formatted_text}
-                                            </Text>
+                                            <View key={`${key}-${index}`} style={styles.situationButton}>
+                                                <Text style={styles.situationText}>
+                                                    {formatted_text}
+                                                </Text>
+                                                {/* TODO delete data her */}
+                                                <TouchableOpacity onPress={() => handleDeleteSituation(key, index)}>
+                                                    <Text>
+                                                        🗑
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
                                         );
                                     })
                                 ) : (
@@ -252,13 +296,13 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#333',
-    paddingVertical: 12,
-    // 1. REMOVE or sharply reduce paddingHorizontal
-    paddingHorizontal: 8,    // Small padding just so text doesn't touch the edges
-    borderRadius: 8,
-    // 2. CHANGE marginBottom to marginHorizontal
-    marginHorizontal: 6,     // Adds space BETWEEN the buttons instead of below them
-    flex: 1,
+        paddingVertical: 12,
+        // 1. REMOVE or sharply reduce paddingHorizontal
+        paddingHorizontal: 8,    // Small padding just so text doesn't touch the edges
+        borderRadius: 8,
+        // 2. CHANGE marginBottom to marginHorizontal
+        marginHorizontal: 6,     // Adds space BETWEEN the buttons instead of below them
+        flex: 1,
     },
     buttonText: {
         color: '#00ff00',
@@ -302,7 +346,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         borderRadius: 6,
         backgroundColor: '#222',
-        marginBottom: 4
+        marginBottom: 4,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     situationText: {
         marginLeft: 8,
