@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 
 export async function storeSituation(Timestamp, TrueGameData, GameData, RobotStatus,audio=null) {
     const n_date = new Date(TrueGameData.timestamp);
@@ -6,7 +7,9 @@ export async function storeSituation(Timestamp, TrueGameData, GameData, RobotSta
     const day = String(n_date.getDate()).padStart(2, '0');
     const key = `${n_date.getFullYear()}_${month}_${day}_${TrueGameData.team1.teamNumber}_vs_${TrueGameData.team2.teamNumber}`;
     console.log(month);
+    
     let situation = {
+        "uuid": Crypto.randomUUID(),
         "timestamp": Timestamp,
         "TrueGameData": TrueGameData,
         "GameData": GameData,

@@ -8,10 +8,11 @@ import { useAudioPlayer } from 'expo-audio';
 
 
 async function uploadSituation(situation, token) {
-    // Ensure the body is stringified if it's an object
+    const { uuid, ...situationCopy } = situation;
 
     const payload = {
-        json_data: situation
+        uuid: uuid,
+        json_data: situationCopy
     };
     try {
         const resp = await fetch(
