@@ -226,13 +226,19 @@ export default function MarkedSituationsScreen() {
 
                                         if (audio) {
                                             return (
+                                                 <View key={`${key}-${index}`} style={styles.situationButton}>
                                                 <TouchableOpacity
                                                     key={`${key}-${index}`}
                                                     onPress={() => handlePlayAudio(audio)}
-                                                    style={styles.situationButton}
                                                 >
                                                     <Text style={styles.situationText}>{formatted_text}</Text>
                                                 </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => handleDeleteSituation(key, index)}>
+                                                    <Text>
+                                                        🗑
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
                                             );
                                         }
 
