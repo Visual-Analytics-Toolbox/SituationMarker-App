@@ -8,7 +8,7 @@ import { useAudioPlayer } from 'expo-audio';
 
 
 async function uploadSituation(situation, token) {
-    const { uuid, ...situationCopy } = situation;
+    const { uuid, audio: audioUri, ...situationCopy } = situation;
 
     const payload = {
         uuid: uuid,
@@ -33,8 +33,55 @@ async function uploadSituation(situation, token) {
         if (!resp.ok) {
             throw new Error(`Upload failed (${resp.status}): ${text}`);
         }
+    } catch (error) {
+        console.error("Network or Server Error:", error);
+        throw error;
+    }
 
-        return text; // Optional: return data if needed
+    if (audioUri){
+        uploadAudio(uuid,audioUri,token)
+    }
+}
+
+async function uploadAudio(uuid,audio, token) {
+
+    const formData = new FormData();
+    formData.append("uuid", uuid);
+
+    // Extract the filename from the URI
+    const filename = audio.split('/').pop();
+    console.log(filename);
+    console.log(uuid);
+
+    const match = /\.(\w+)$/.exec(filename);
+    const fileType = match ? `audio/${match[1]}` : `audio/m4a`;
+
+    formData.append("file", {
+        uri: audio,
+        name: filename,
+        type: fileType
+    });
+
+    try {
+        const resp = await fetch(
+            "https://vat.berlin-united.com/api/situations/gc/audio/",
+            {
+                method: "POST",
+                headers: {
+                   "Authorization": `Token ${token}`
+                },
+                body: formData
+            }
+        );
+
+        const text = await resp.text();
+        console.log("Status:", resp.status, "Body:", text);
+
+        if (!resp.ok) {
+            throw new Error(`Upload failed (${resp.status}): ${text}`);
+        }
+
+        return text; 
     } catch (error) {
         console.error("Network or Server Error:", error);
         throw error;
@@ -128,8 +175,8 @@ export default function MarkedSituationsScreen() {
             const situations = situationsByKey[key] || [];
 
             for (const situation of situations) {
-                if (!situation?.audio) {
-                    console.log("Uploading situation without audio...");
+             
+                    console.log("Uploading situation ...");
 
                     try {
                         // Pass the token down to your fixed upload function
@@ -139,10 +186,7 @@ export default function MarkedSituationsScreen() {
                         // Optional: use 'break' or 'return' if you want to stop the whole queue on failure
                     }
 
-                } else {
-                    // TODO: figure out how we want to upload audio files after situation endpoint is done
-                    console.log("Skipping audio situation for now");
-                }
+                
             }
         }
     };
