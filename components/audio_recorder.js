@@ -10,12 +10,13 @@ import {
   useAudioRecorderState,
 } from 'expo-audio';
 
-export default function AudioButton() {
+export default function AudioButton({ enabled }) {
   const { latestGameData, latestTrueGameData, latestRobotStatus } = useGameController();
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(audioRecorder);
 
   const record = async () => {
+    console.log(enabled)
     Vibration.vibrate(70);
     await audioRecorder.prepareToRecordAsync();
     audioRecorder.record();
@@ -56,6 +57,7 @@ export default function AudioButton() {
           recorderState.isRecording ? styles.buttonRecording : styles.buttonIdle
         ]}
         onPress={recorderState.isRecording ? stopRecording : record}
+        disabled={!enabled}
       >
         <Text style={styles.buttonText}>
           {recorderState.isRecording ? 'STOP' : 'REC'}

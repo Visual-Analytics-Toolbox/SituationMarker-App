@@ -2,6 +2,7 @@ import { useGameController } from '../utils/GameControllerContext';
 import { StyleSheet, Text, View, TouchableOpacity, Vibration, TextInput } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { storeSituation } from '../utils/storeData';
+import { getTeamName } from '../utils/GameControlData';
 import AudioButton from '../components/audio_recorder';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -30,17 +31,38 @@ export default function Main() {
                     {gcIP === '' ? 'Not connected' : gcIP}
                 </Text>
                 <Text style={styles.timeText}>
-                    {formatTime(latestTrueGameData?.secsRemaining)}
+                    {gcIP === '' ? '' : formatTime(latestTrueGameData?.secsRemaining)}
                 </Text>
             </View>
 
+            {gcIP !== '' && (
+                <View style={styles.infoCard}>
+                    <View style={styles.matchupContainer}>
+                        <Text style={styles.teamName} numberOfLines={1} adjustsFontSizeToFit>
+                            {getTeamName(latestTrueGameData?.team1?.teamNumber)}
+                        </Text>
+                        
+                        <Text style={styles.vsText}>VS</Text>
+                        
+                        <Text style={styles.teamName} numberOfLines={1} adjustsFontSizeToFit>
+                            {getTeamName(latestTrueGameData?.team2?.teamNumber)}
+                        </Text>
+                    </View>
+
+                    <View style={styles.phaseStateContainer}>
+                        <Text style={styles.detailText}>Phase: {latestTrueGameData?.gamePhase}</Text>
+                        <Text style={styles.detailText}>State: {latestTrueGameData?.gameState}</Text>
+                    </View>
+                </View>
+            )}
+
             {/* BOTTOM: Actions */}
             <View style={styles.actionArea}>
-                <TouchableOpacity style={styles.markButton} onPress={handleMark}>
+                <TouchableOpacity style={styles.markButton} onPress={handleMark} disabled={gcIP===''}>
                     <Text style={styles.markButtonText}>Quick Mark (No Audio)</Text>
                 </TouchableOpacity>
 
-                <AudioButton />
+                <AudioButton enabled={gcIP !== ''} />
             </View>
         </View>
     )
@@ -78,4 +100,44 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     markButtonText: { color: '#ec008c', fontSize: 20, fontWeight: 'bold' },
+    infoCard: {
+        backgroundColor: '#1e1e1e', // Matches the header background
+        padding: 15,
+        borderRadius: 15,
+        width: '100%',
+        marginVertical: 15, // Creates breathing room between top and bottom
+    },
+    matchupContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: 10,
+    },
+    teamName: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        flex: 1, // Ensures both team names get exactly 50% of the space
+        textAlign: 'center',
+    },
+    vsText: {
+        color: '#ec008c', // Your brand pink to make it pop
+        fontSize: 16,
+        fontWeight: '900',
+        marginHorizontal: 10,
+    },
+    phaseStateContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderColor: '#333', // Subtle separator line
+    },
+    detailText: {
+        color: '#aaa',
+        fontSize: 14,
+        fontWeight: '600',
+        textTransform: 'uppercase', // Makes Phase/State look cleaner
+    },
 });

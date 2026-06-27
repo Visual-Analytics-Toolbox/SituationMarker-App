@@ -26,8 +26,8 @@ export const parseGameControlData = (data) => {
   const playersPerTeam = view.getUint8(6);
   const competitionType = view.getUint8(7);
   const stopped = view.getUint8(8) !== 0;
-  const gamePhase = view.getUint8(9);
-  const gameState = view.getUint8(10);
+  const gamePhase = getGamePhase(view.getUint8(9));
+  const gameState = getGameState(view.getUint8(10));
   const setPlay = view.getUint8(11);
   const firstHalf = view.getUint8(12) !== 0;
   const kickingTeam = view.getUint8(13);
@@ -57,14 +57,14 @@ export const parseGameControlData = (data) => {
     // Do we need to store player info ?
     const playersOffset = offset + 10;
     for (let i = 0; i < playersPerTeam; i += 1) {
-      team.players.push(parsePlayer(playersOffset + i * 4));
+      team.players.push(parsePlayer(playersOffset + i * 3));
     }
 
     return team;
   };
 
   const team1 = parseTeam(18);
-  const team2 = parseTeam(108);
+  const team2 = parseTeam(88);
   const timestamp = Date.now();
 
   return {
@@ -142,3 +142,100 @@ export const parseGameControlReturnData = (data) => {
     timestamp
   };
 };
+
+// #define GAME_PHASE_NORMAL            0
+// #define GAME_PHASE_PENALTY_SHOOT_OUT 1
+// #define GAME_PHASE_EXTRA_TIME        2
+// #define GAME_PHASE_TIMEOUT           3
+
+
+export const getGamePhase = (id) => {
+
+  const GamePhases = {0:"normal",1:"penalty shoot",2:"extra time",3:"timeout"}
+  return(GamePhases[id])
+}
+
+
+// #define STATE_INITIAL  0
+// #define STATE_READY    1
+// #define STATE_SET      2
+// #define STATE_PLAYING  3
+// #define STATE_FINISHED 4
+
+export const getGameState = (id) => {
+  const GameStates = {0:"initial",1:"ready",2:"set",3:"playing",4:"finished"}
+  return(GameStates[id])
+}
+
+export const getTeamName = (id) => {
+  // TODO: maybe we should find a solution where we don't have to hardcode this
+  const TeamNames = {
+  0: "Invisibles",
+  1: "NUbots",
+  2: "Bold Hearts",
+  3: "Bembelbots",
+  4: "Berlin United",
+  5: "B-Human",
+  6: "Hamburg Bit-Bots",
+  7: "Barelang FC",
+  8: "whIRLwind Amsterdam",
+  9: "WF Wolves",
+  10: "Colmillos ITAM",
+  11: "Rhoban",
+  12: "Ruhrbot Devils",
+  13: "Blenders FC",
+  14: "HTWK Robots",
+  15: "EWS Bascorro",
+  16: "Pumas",
+  17: "ZJUDancer",
+  18: "rUNSWift",
+  19: "SPQR Team",
+  20: "GeoHBots",
+  21: "RO:BIT",
+  22: "HUST-HRT",
+  23: "I-Kid",
+  24: "HULKs",
+  25: "HERoEHS",
+  26: "ICHIRO ITS",
+  27: "Invic",
+  28: "Team Sweaty",
+  29: "CAU Mountain&Sea",
+  30: "THMOS",
+  31: "Tsinghua Hephaestus",
+  32: "UT AustinVilla",
+  33: "NomadZ",
+  34: "ITAndroids",
+  35: "KHUBER",
+  36: "Mountain",
+  37: "Team noon",
+  38: "WolverBot Kickers",
+  39: "I-Teen",
+  40: "Inha-United",
+  41: "RFC-Tsudanuma",
+  42: "RoboEireann",
+  43: "Bahia Robotics Team",
+  44: "Beihang RoboCup Team",
+  45: "Naova",
+  46: "BigHeroX",
+  47: "DUT Future",
+  48: "Future Becoming",
+  49: "SABANA HERONS",
+  50: "R-ZWEI KICKERS",
+  51: "RedbackBots",
+  52: "Badger Bots",
+  53: "KURA",
+  54: "PCMS-HRG",
+  55: "Robo-Erectus",
+  56: "RobôCIn",
+  57: "Robotedge",
+  58: "SJTU Cyber Shanhai",
+  59: "Talos Humanoid Robots",
+  60: "Tech United",
+  61: "WarthogRobotics",
+  62: "Water",
+  63: "WHU United",
+  64: "ZETIN",
+  70: "B-Team"
+}
+  return(TeamNames[id])
+}
