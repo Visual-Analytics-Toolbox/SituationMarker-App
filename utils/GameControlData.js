@@ -121,11 +121,12 @@ export const parseGameControlReturnData = (data) => {
   const playerNum = view.getUint8(9);
   const teamNum = view.getUint8(10);
   const fallen = view.getUint8(11);
-  const pose_x = view.getFloat32(12);
-  const pose_y = view.getFloat32(16);
-  const ballAge = view.getFloat32(20);
-  const ball_x = view.getFloat32(24);
-  const ball_y = view.getFloat32(28);
+  const pose_x = view.getFloat32(12,true);
+  const pose_y = view.getFloat32(16,true);
+  const pose_theta = view.getFloat32(20, true); 
+  const ballAge    = view.getFloat32(24, true);
+  const ball_x     = view.getFloat32(28, true);
+  const ball_y     = view.getFloat32(32, true);
   const timestamp = Date.now();
 
   return {
@@ -136,6 +137,7 @@ export const parseGameControlReturnData = (data) => {
     fallen,
     pose_x,
     pose_y,
+    pose_theta,
     ballAge,
     ball_x,
     ball_y,
