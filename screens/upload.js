@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ToastAndroid,StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loadSituations } from '../utils/storeData';
+import { loadSituations, updateSituationStatus } from '../utils/storeData';
 import { useToken } from '../utils/auth';
 import { useAudioPlayer } from 'expo-audio';
 
 
 async function uploadSituation(situation, token) {
-    const { uuid, audio: audioUri, ...situationCopy } = situation;
+    const { uuid, audio: audioUri, status: status, ...situationCopy } = situation;
 
     const payload = {
         uuid: uuid,
@@ -26,24 +26,22 @@ async function uploadSituation(situation, token) {
                 body: JSON.stringify(payload)
             }
         );
+        if (audioUri) {
+        audio_status = uploadAudio(uuid, audioUri, token);
+        return { "GameStatus": resp.status, "AudioStatus": audio_status };
+    }
 
-        const text = await resp.text();
-        console.log("Status:", resp.status, "Body:", text);
+    return { "GameStatus": resp.status }
 
-        if (!resp.ok) {
-            throw new Error(`Upload failed (${resp.status}): ${text}`);
-        }
     } catch (error) {
         console.error("Network or Server Error:", error);
         throw error;
     }
 
-    if (audioUri){
-        uploadAudio(uuid,audioUri,token)
-    }
+   
 }
 
-async function uploadAudio(uuid,audio, token) {
+async function uploadAudio(uuid, audio, token) {
 
     const formData = new FormData();
     formData.append("uuid", uuid);
@@ -68,20 +66,12 @@ async function uploadAudio(uuid,audio, token) {
             {
                 method: "POST",
                 headers: {
-                   "Authorization": `Token ${token}`
+                    "Authorization": `Token ${token}`
                 },
                 body: formData
             }
         );
-
-        const text = await resp.text();
-        console.log("Status:", resp.status, "Body:", text);
-
-        if (!resp.ok) {
-            throw new Error(`Upload failed (${resp.status}): ${text}`);
-        }
-
-        return text; 
+        return resp.status;
     } catch (error) {
         console.error("Network or Server Error:", error);
         throw error;
@@ -173,23 +163,23 @@ export default function MarkedSituationsScreen() {
         // Use for...of loops instead of .map() to properly await async tasks
         for (const key of keys) {
             const situations = situationsByKey[key] || [];
-
+            
             for (const situation of situations) {
-             
-                    console.log("Uploading situation ...");
 
-                    try {
-                        // Pass the token down to your fixed upload function
-                        await uploadSituation(situation, token);
-                    } catch (error) {
-                        console.error(`Failed to upload item under key ${key}:`, error);
-                        // Optional: use 'break' or 'return' if you want to stop the whole queue on failure
-                    }
+                console.log("Uploading situation ...");
 
-                
+                try {
+                    // Pass the token down to your fixed upload function
+                    const status = await uploadSituation(situation, token);
+                    await updateSituationStatus(key,situation.uuid,status?.GameStatus, status?.AudioStatus);
+                } catch (error) {
+                    console.error(`Failed to upload item under key ${key}:`, error);
+                    // Optional: use 'break' or 'return' if you want to stop the whole queue on failure
+                }
             }
         }
-    };
+                ToastAndroid.show('Upload DONE!', ToastAndroid.SHORT);
+        };
 
     const handleDeleteSituation = async (gameKey, indexToDelete) => {
         try {
@@ -262,27 +252,37 @@ export default function MarkedSituationsScreen() {
                                             : 'Unknown date';
                                         const audio = situation?.audio;
                                         let formatted_text = audio ? `${formattedTime} 🎙️` : formattedTime;
-                                        const secsRemaining = situation?.TrueGameData?.secsRemaining
+                                        const secsRemaining = situation?.TrueGameData?.secsRemaining;
                                         const minutes = Math.floor(secsRemaining / 60);
                                         const seconds = secsRemaining - minutes * 60;
                                         formatted_text = `${formatted_text} | game time: ${minutes}:${seconds}`;
 
+                                        // FIXME: having two raw gc situations was a bad idea, we need to migrate to one endpoint 
+                                        // so upload status tracking is less messy 
+                                        // FIXME: put the situation as extra component
+                                        const gameStatusIcon = situation?.status?.GameData === 201 ? '✅' : '❌';
+                                        const audioStatusIcon = situation?.status?.AudioData === 201 ? '✅' : '❌';
+                                        console.log(situation?.status);
+                                    
 
                                         if (audio) {
                                             return (
-                                                 <View key={`${key}-${index}`} style={styles.situationButton}>
-                                                <TouchableOpacity
-                                                    key={`${key}-${index}`}
-                                                    onPress={() => handlePlayAudio(audio)}
-                                                >
-                                                    <Text style={styles.situationText}>{formatted_text}</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => handleDeleteSituation(key, index)}>
-                                                    <Text>
-                                                        🗑
+                                                <View key={`${key}-${index}`} style={styles.situationButton}>
+                                                    <TouchableOpacity
+                                                        key={`touchable-${key}-${index}`} 
+                                                        onPress={() => handlePlayAudio(audio)}
+                                                    >
+                                                        <Text style={styles.situationText}>{formatted_text}</Text>
+                                                    </TouchableOpacity>
+
+                                                    <Text style={{ marginHorizontal: 10 }}>
+                                                        Game: {gameStatusIcon} | Audio: {audioStatusIcon}
                                                     </Text>
-                                                </TouchableOpacity>
-                                            </View>
+
+                                                    <TouchableOpacity onPress={() => handleDeleteSituation(key, index)}>
+                                                        <Text>🗑</Text>
+                                                    </TouchableOpacity>
+                                                </View>
                                             );
                                         }
 
@@ -291,11 +291,13 @@ export default function MarkedSituationsScreen() {
                                                 <Text style={styles.situationText}>
                                                     {formatted_text}
                                                 </Text>
-                                                {/* TODO delete data her */}
+
+                                                <Text style={{ marginHorizontal: 10 }}>
+                                                    Game: {gameStatusIcon}
+                                                </Text>
+
                                                 <TouchableOpacity onPress={() => handleDeleteSituation(key, index)}>
-                                                    <Text>
-                                                        🗑
-                                                    </Text>
+                                                    <Text>🗑</Text>
                                                 </TouchableOpacity>
                                             </View>
                                         );
@@ -310,7 +312,7 @@ export default function MarkedSituationsScreen() {
             )}
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
